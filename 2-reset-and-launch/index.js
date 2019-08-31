@@ -1,4 +1,3 @@
-const db = require('./database')
 const connect = require('./connect')
 const resetVessel = require('./reset-vessel')
 const prepareForLaunch = require('./prepare-for-launch')
