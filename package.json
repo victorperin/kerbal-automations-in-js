@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bluebird": "^3.5.5",
     "krpc-node": "^4.0.1",
     "lowdb": "^1.0.0"
   }
