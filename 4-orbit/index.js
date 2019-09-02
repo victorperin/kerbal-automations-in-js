@@ -3,19 +3,24 @@ const resetVessel = require('./reset-vessel')
 const prepareForLaunch = require('./prepare-for-launch')
 const launch = require('./launch')
 const activateAutoStage = require('./autostage')
+const controlDirection = require('./control-direction')
 
 const run = async () => {
     await connect()
-    console.log('connected')
+    // console.log('connected')
     await resetVessel()
-    console.log('reset done')
+    // console.log('reset done')
 
     await prepareForLaunch()
-    console.log('prepared')
+    // console.log('prepared')
 
     await launch()
-    console.log('launched')
-    await activateAutoStage()
+    // console.log('launched')
+    activateAutoStage()
+
+    controlDirection()
+
+
 
     console.log('done')
 }

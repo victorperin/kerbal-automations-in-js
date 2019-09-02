@@ -1,8 +1,7 @@
 const Promise = require('bluebird')
 const { spaceCenter } = require('krpc-node')
 const db = require('./database')
-
-const returnFunctionOptions = { _fn: true } // this return the function to be able to addStream
+const { returnFunctionOptions } = require('./helpers')
 
 const autostage = async () => {
     const client = db.get('client').value()
@@ -17,22 +16,27 @@ const autostage = async () => {
         engines.map( (engine) => engine.hasFuel.get(returnFunctionOptions) )
     )
 
-    await Promise.all(
+    const streams = await Promise.all(
         getFuelsCalls.map( (func, index) =>
             client.addStream(func, `EngineFuel${index}`)
         )
     )
 
-    client.stream.on('message', async (streamState) => {
-            const control = db.get('control').value()
+    const streamsId = streams.map( stream => stream.id.toString() )
+
+    client.stream.on('message', async (streamState, updated) => {
+            const updatedStreamsIds = updated.results.map( result => result.id.toString() )
+            // console.log(updatedStreamsIds)
+            if( updatedStreamsIds.every( (id) => !streamsId.includes(id) ) ) return null
 
             
-            const noFuelEnginesStages = await Promise.filter(
+            let noFuelEnginesStages = await Promise.filter(
                 engines,
                 async engine => !await engine.hasFuel.get()
             )
                 .map( engine => engine.part.get() )
                 .map( part => part.stage.get() )
+            
 
             
             
@@ -61,6 +65,14 @@ const autostage = async () => {
                 )
                     .map( engine => engine.part.get() )
                     .map( part => part.stage.get() )
+
+                noFuelEnginesStages = await Promise.filter(
+                    engines,
+                    async engine => !await engine.hasFuel.get()
+                )
+                    .map( engine => engine.part.get() )
+                    .map( part => part.stage.get() )
+                
             }
             
     })
